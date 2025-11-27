@@ -3,7 +3,7 @@ const { io } = require("socket.io-client");
 const fs = require("fs");
 const decoder = require("wav-decoder");
 const encoder = require('wav-encoder');
-
+// copy the wav file to this folder before running the sample
 const file = "LJ_eng.wav";
 const output = "test.wav";
 let client;
@@ -11,36 +11,13 @@ let channelData;
 let sampleRate;
 let targetLanguage = "hin";
 
-function adapter(speechSamples) {
-  let float32;
-
-  if (Buffer.isBuffer(speechSamples)) {
-    // Interpret the Buffer's bytes as float32 samples
-    float32 = new Float32Array(
-      speechSamples.buffer,
-      speechSamples.byteOffset,
-      speechSamples.byteLength / 4
-    );
-  } else if (speechSamples instanceof ArrayBuffer) {
-    // In case socket.io gives you an ArrayBuffer
-    float32 = new Float32Array(speechSamples);
-  } else if (Array.isArray(speechSamples)) {
-    // Fallback if it somehow became a plain JS array
-    float32 = Float32Array.from(speechSamples);
-  } else {
-    throw new Error(`Unexpected speechSamples type: ${typeof speechSamples}`);
-  }
-
-  return float32;
-}
-
 class SpeechTranslationClient {
 
   constructor({ speechCallback, textCallback, initCallback }) {
     this.socket = io(BASE_URL)
     let socket = this.socket
     // this is a callback that receives the result of a translation request from the server
-    socket.on("speech", (speechSamples, args) => speechCallback && speechCallback(adapter(speechSamples), args))
+    socket.on("speech", (speechSamples, args) => speechCallback && speechCallback(this.adapter(speechSamples), args))
     // this callback receives the text in the target language
     socket.on("text", arg => textCallback && textCallback(arg))
     socket.on("connect", () => {
@@ -67,6 +44,29 @@ class SpeechTranslationClient {
 
   shutdown() {
     this.socket.disconnect()
+  }
+
+  adapter(speechSamples) {
+    let float32;
+
+    if (Buffer.isBuffer(speechSamples)) {
+      // Interpret the Buffer's bytes as float32 samples
+      float32 = new Float32Array(
+        speechSamples.buffer,
+        speechSamples.byteOffset,
+        speechSamples.byteLength / 4
+      );
+    } else if (speechSamples instanceof ArrayBuffer) {
+      // In case socket.io gives you an ArrayBuffer
+      float32 = new Float32Array(speechSamples);
+    } else if (Array.isArray(speechSamples)) {
+      // Fallback if it somehow became a plain JS array
+      float32 = Float32Array.from(speechSamples);
+    } else {
+      throw new Error(`Unexpected speechSamples type: ${typeof speechSamples}`);
+    }
+
+    return float32;
   }
 }
 
