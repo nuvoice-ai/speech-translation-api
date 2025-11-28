@@ -10,11 +10,37 @@ $ pip install -r requirements.txt
 
 copy the `LJ_eng.wav` file to the directory.
 
+edit `main.py` replacing the `BASE_URL` as appropriate:
+
+```
+BASE_URL = "http://api.nuvoice.ai:8000"
+```
+
+You can find the domain part of the URL from `VPC -> Endpoints` in AWS dashboard. Select the endpoint you created in the Setup section.
+
+Also change the `targetLanguage` to whatever you like:
+
+```
+target_language = "hin"
+```
+
+This is the language to which you want to translate.
+
+You can get list of supported languages by running:
+
+```
+curl http://api.nuvoice.ai:8000/languages
+```
+
+from the command line.
+
 run:
 
 ```
 $ python main.py
 ```
+
+This should translate the given audio clip in English to the `targetLanguage` and save it as `test.wav`.
 
 sample output:
 

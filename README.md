@@ -6,7 +6,37 @@ This document explains how to setup Speech Translation API and use it in your AW
 
 Setting up the Speech Translation API requires you to add an _interface endpoint_ in your AWS account.
 An interface endpoint provides a private connection between your VPC and our service (the API).
-This can be done either using the UI or the command line. Before you can perform the steps you will need a service name which will be provided by us.
+This can be done either using the UI or the command line. 
+
+### Pre-requisites
+
+Before you can perform the steps you will need a service name which will be provided by us.
+
+You can also provision a private VPC from where you will connect to the service. A private VPC can be provisioned by running following commands as example:
+
+Step 1: Create VPC (example):
+
+```
+aws ec2 create-vpc --cidr-block "10.3.0.0/25" --no-amazon-provided-ipv6-cidr-block
+```
+
+Note down the VPC ID as you will need it in the next step.
+
+Step 2: Create a security group:
+
+```
+aws ec2 create-security-group --group-name "consumer-sg" --description "Security group for service consumers" --vpc-id <INSERT-FROM-ABOVE>
+```
+
+Add inbound and outbound rules to the security group using the CLI or the UI.
+
+Step 3: Create subnet(s) from where you will access the service (change `us-east-1a` to any other availability zone as appropriate):
+
+```
+aws ec2 create-subnet --availability-zone "us-east-1a" --cidr-block "10.0.0.0/27" --vpc-id <INSERT-FROM-ABOVE> --region us-east-1
+```
+
+In next section we cover how to create the interface endpoint.
 
 ### Using the UI
 
@@ -64,6 +94,77 @@ Below is example of a successfully created Endpoint. Note the Endpoint type is *
 
 To create an interface endpoint using the command line refer [create-vpc-endpoint (AWS CLI)](https://docs.aws.amazon.com/cli/latest/reference/ec2/create-vpc-endpoint.html).
 
+Example:
+
+```bash
+aws ec2 create-vpc-endpoint \
+  --vpc-endpoint-type Interface \
+  --vpc-id <your-vpc-id> \
+  --service-name <service-name-provided-by-us> \
+  --subnet-ids <subnet-id-1> <subnet-id-2> ... \
+  --security-group-ids <sg-id-1> <sg-id-2> ...
+```
+
+Parameter explanations
+
+* **`--vpc-endpoint-type Interface`**
+  Must be `Interface`. This creates one or more elastic network interfaces (ENIs) inside *your* VPC that connect to our service.
+
+* **`--vpc-id <your-vpc-id>`**
+  The VPC **in your account** from which you want to connect to our service.
+
+  * Typically a **private VPC** (no public IPs on your workloads).
+  * If you don’t already have a suitable VPC, you may need to create one first.
+
+* **`--service-name <service-name-provided-by-us>`**
+  The name of our VPC endpoint service that you are connecting to.
+
+  * We will provide this value (it usually looks like:
+    `com.amazonaws.vpce.<region>.vpce-svc-xxxxxxxxxxxxxxx`).
+
+* **`--subnet-ids <subnet-id-1> <subnet-id-2> ...`**
+  One or more **subnets in your VPC** from where you will access the service. An endpoint network interface will be created in each subnet.
+
+  * At least **one subnet** is required.
+  * Subnets are **not** the same as Availability Zones (AZs), but each subnet belongs to exactly one AZ.
+  * For high availability, AWS recommends **one subnet per AZ** where your clients (EC2 instances, containers, etc.) run but this is not necessary.
+
+* **`--security-group-ids <sg-id-1> <sg-id-2> ...`**
+  One or more **security groups attached to the endpoint ENIs**. These control inbound and outbound traffic **to the endpoint**, not to the entire subnet.
+
+  * You can specify multiple security groups; their rules are effectively combined.
+  * Make sure they allow:
+
+    * **Inbound**: traffic from your client resources (EC2, containers etc.) on the port/protocol used by our service i.e., traffic from EC2 → to the ENI
+    * **Outbound**: generally allowed by default (“allow all outbound” is fine).
+  * If you cannot connect to the service, its most likely due to a misconfigured security group.
+
+Below is a complete example you can adapt. Replace the placeholder values with your own:
+
+```bash
+aws ec2 create-vpc-endpoint \
+  --vpc-endpoint-type Interface \
+  --vpc-id vpc-0123456789abcdef0 \
+  --service-name com.amazonaws.vpce.us-east-1.vpce-svc-0abc123def4567890 \
+  --subnet-ids subnet-0aaa111bbb222ccc1 subnet-0ddd222eee333fff2 \
+  --security-group-ids sg-0123abcd4567efgh1
+```
+
+In this example:
+
+* The endpoint is created in VPC `vpc-0123456789abcdef0`.
+* Two subnets are used (in two different AZs) to provide high availability.
+* Security group `sg-0123abcd4567efgh1` should:
+
+  * Allow inbound traffic from your application instances on the required port (e.g., TCP 443).
+  * Optionally keep the default “allow all outbound” rule (recommended).
+
+You can then verify the endpoint status with:
+
+```bash
+aws ec2 describe-vpc-endpoints --vpc-endpoint-ids <created-endpoint-id>
+```
+
 ### Making changes to existing endpoint
 
 To configure an existing interface endpoint refer [this](https://docs.aws.amazon.com/vpc/latest/privatelink/interface-endpoints.html) guide.
@@ -77,3 +178,6 @@ Log in to the ec2 instance and clone this repository.
 To test the API using JavaScript refer the sample in [javascript](javascript/README.md) folder.
 
 To test the API using Python refer the sample in [python](python/README.md) folder.
+
+The samples demonstrate how to translate an audio recording but the intended use-case of the API is real-time translation of live conversations.
+You can use the API to translate audio recordings but make sure to break the recording into "bite-sized chunks" (sentences) using Voice Activity Detection (VAD).
