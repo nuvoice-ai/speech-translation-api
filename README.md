@@ -182,7 +182,7 @@ The samples demonstrate how to translate an audio recording but the intended use
 You can use the API to translate audio recordings but make sure to break the recording into "bite-sized chunks" (sentences) using Voice Activity Detection (VAD).
 
 If you want to hit the API from a browser or mobile client you won't be able to do that directly. You will need to run a tiny proxy server in your VPC.
-See [proxy.js](javascript/proxy.js) and [socketio-proxy.js](socketio-proxy.js) for how to do that. Your browser will make requests to your proxy and the proxy will route the request to the API.
+See [proxy.js](javascript/proxy.js) for how to do that. Your browser will make requests to your proxy and the proxy will route the request to the API.
 
 ## Tips
 
