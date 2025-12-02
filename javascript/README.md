@@ -57,4 +57,7 @@ sending  121343  samples to the API
 received translated audio
 ```
 
+If you want to hit the API from a browser or mobile client you won't be able to do that directly. You will need to run a tiny proxy server in your VPC.
+See [proxy.js](proxy.js) for how to do that. Your browser will make requests to your proxy and the proxy will route the request to the API.
+
 Stay tuned for more updates and samples.

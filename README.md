@@ -126,8 +126,7 @@ Parameter explanations
   One or more **subnets in your VPC** from where you will access the service. An endpoint network interface will be created in each subnet.
 
   * At least **one subnet** is required.
-  * Subnets are **not** the same as Availability Zones (AZs), but each subnet belongs to exactly one AZ.
-  * For high availability, AWS recommends **one subnet per AZ** where your clients (EC2 instances, containers, etc.) run but this is not necessary.
+  * Subnets are **not** the same as Availability Zones (AZs), but each subnet belongs to exactly one AZ.  
 
 * **`--security-group-ids <sg-id-1> <sg-id-2> ...`**
   One or more **security groups attached to the endpoint ENIs**. These control inbound and outbound traffic **to the endpoint**, not to the entire subnet.
@@ -181,3 +180,11 @@ To test the API using Python refer the sample in [python](python/README.md) fold
 
 The samples demonstrate how to translate an audio recording but the intended use-case of the API is real-time translation of live conversations.
 You can use the API to translate audio recordings but make sure to break the recording into "bite-sized chunks" (sentences) using Voice Activity Detection (VAD).
+
+If you want to hit the API from a browser or mobile client you won't be able to do that directly. You will need to run a tiny proxy server in your VPC.
+See [proxy.js](javascript/proxy.js) for how to do that. Your browser will make requests to your proxy and the proxy will route the request to the API.
+
+## Tips
+
+- Use a Voice Activity Detection (VAD) library on the client to segment the audio signal before sending it over to the API. VAD libraries using Silero VAD algorithm can be found for the browser as well as mobile and server environments.
+- Capture audio signal at frequency of 16 kHz to avoid resampling it on the backend.
