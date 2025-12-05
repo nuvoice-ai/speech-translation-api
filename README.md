@@ -20,7 +20,7 @@ Step 1: Create VPC (example):
 aws ec2 create-vpc --cidr-block "10.3.0.0/25" --no-amazon-provided-ipv6-cidr-block
 ```
 
-Note down the VPC ID as you will need it in the next step.
+Note down the VPC ID as you will need it in the next step. **Please provision the VPC in the same region as the service.**
 
 Step 2: Create a security group:
 
@@ -58,7 +58,7 @@ For Service name, **enter the service name provided to you by us**. Click on **V
 
 For VPC, select the VPC from which you'll access the AWS service. Provision a new VPC if you like.
 
-Optional: Enable Private DNS. This will allow you to connect to the service using a short URL. It is not necessary to enable this.
+**Uncheck Enable Private DNS**. This feature does not work while creating the endpoint. You can turn it on _after creating the endpoint by going to `Actions` -> `Modify private DNS Name`_.
 
 For Subnets, select the subnets from which you will access the API. You can select one subnet per Availability Zone. You can't select multiple subnets from the same Availability Zone. For more information, see Subnets and Availability Zones. _You must select at least one subnet_.
 
@@ -181,10 +181,21 @@ To test the API using Python refer the sample in [python](python/README.md) fold
 The samples demonstrate how to translate an audio recording but the intended use-case of the API is real-time translation of live conversations.
 You can use the API to translate audio recordings but make sure to break the recording into "bite-sized chunks" (sentences) using Voice Activity Detection (VAD).
 
-If you want to hit the API from a browser or mobile client you won't be able to do that directly. You will need to run a tiny proxy server in your VPC.
+To hit the API from a browser or mobile client, you will need to run a tiny proxy server in your VPC.
 See [proxy.js](javascript/proxy.js) for how to do that. Your browser will make requests to your proxy and the proxy will route the request to the API.
 
 ## Tips
 
 - Use a Voice Activity Detection (VAD) library on the client to segment the audio signal before sending it over to the API. VAD libraries using Silero VAD algorithm can be found for the browser as well as mobile and server environments.
 - Capture audio signal at frequency of 16 kHz to avoid resampling it on the backend.
+
+## Troubleshooting Tips
+
+### Service Name could not be verified
+
+- Are you creating the endpoint in the **same** region where you asked to deploy the service?
+
+### curl hangs
+
+This is most likely due to misconfigured SG (security group). Please allow incoming traffic on port `8000` on the ENI (Elastic Network Interface) and outbound to all.
+Double-check the source of the SG on the ENI. If the source of the SG is another SG, then it will block all traffic that does not originate from the source SG.
