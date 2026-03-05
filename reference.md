@@ -19,8 +19,8 @@ The API supports both HTTP REST endpoints for configuration and health checks, a
 
 ### Base URL
 
-- HTTP: `http://localhost:8080` (default)
-- WebSocket: `ws://localhost:8080` (default)
+- HTTP: `http://translation-api.nuvoice.ai` (default)
+- WebSocket: `ws://translation-api.nuvoice.ai` (default)
 
 ---
 
@@ -38,7 +38,7 @@ Check if the server is running and healthy.
 
 **Example:**
 ```bash
-curl http://localhost:8080/healthz
+curl http://translation-api.nuvoice.ai/healthz
 ```
 
 ---
@@ -68,7 +68,7 @@ Retrieve the list of supported target languages for translation.
 
 **Example:**
 ```bash
-curl http://localhost:8080/languages
+curl http://translation-api.nuvoice.ai/languages
 ```
 
 ---
@@ -93,7 +93,7 @@ Retrieve the build version and branch information.
 
 **Example:**
 ```bash
-curl http://localhost:8080/version
+curl http://translation-api.nuvoice.ai/version
 ```
 
 **Example Response:**
@@ -106,7 +106,7 @@ curl http://localhost:8080/version
 
 ---
 
-## WebSocket/Socket.IO Events
+## WebSocket/Socket.IO Events (non-streaming API)
 
 The API uses Socket.IO for real-time bidirectional communication. Clients connect via WebSocket and can send/receive events.
 
@@ -329,4 +329,4 @@ HTTP error responses follow this format:
 
 - The API uses Socket.IO for real-time communication, not raw WebSockets
 - Audio data must be sent as bytes (not base64 encoded)
-- The model sample rate is fixed at 16000 Hz
+- The model sample rate is fixed at **16000 Hz**

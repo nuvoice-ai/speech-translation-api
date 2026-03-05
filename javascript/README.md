@@ -4,7 +4,13 @@ The sample in this folder illustrates how to access the Speech Translation API u
 
 Provision an EC2 Instance in the **same** VPC and subnet that you used in the Setup and use the **same** SG.
 
-Then copy over the code in this folder together with the sample `LJ_eng.wav` file to the EC2 Instance.
+Then copy over the code in this folder together to the EC2 Instance.
+
+Download test file:
+
+```
+wget https://nuvoice-ai-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
+```
 
 Install latest Node.js using [nvm](https://github.com/nvm-sh/nvm).
 

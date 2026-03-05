@@ -1,9 +1,14 @@
-const BASE_URL = "http://api.nuvoice.ai:8000";
+/**
+ * This code sample illustrates how to use the Speech Translation API in **non-streaming** mode.
+ * Refer streaming.js for the streaming API.
+ * Pre-requisites: Download test LJ_eng.wav file or substitute with another .wav file that you would like to test.
+ */
+const BASE_URL = "http://translation-api.nuvoice.ai:8000";
 const { io } = require("socket.io-client");
 const fs = require("fs");
 const decoder = require("wav-decoder");
 const encoder = require('wav-encoder');
-// copy the wav file to this folder before running the sample
+// wget https://nuvoice-ai-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
 const file = "LJ_eng.wav";
 const output = "test.wav";
 let client;
@@ -14,7 +19,9 @@ let targetLanguage = "hin";
 class SpeechTranslationClient {
 
   constructor({ speechCallback, textCallback, initCallback }) {
-    this.socket = io(BASE_URL)
+    this.socket = io(BASE_URL, {
+			transports: ['websocket'],    // Use WebSocket only, skip HTTP polling (more reliable for audio))
+    });
     let socket = this.socket
     // this is a callback that receives the result of a translation request from the server
     socket.on("speech", (speechSamples, args) => speechCallback && speechCallback(this.adapter(speechSamples), args))
