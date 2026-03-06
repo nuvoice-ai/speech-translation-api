@@ -8,12 +8,18 @@ $ source .env/bin/activate
 $ pip install -r requirements.txt
 ```
 
+Download test file:
+
+```
+wget https://nuvoice-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
+```
+
 copy the `LJ_eng.wav` file to the directory.
 
 edit `main.py` replacing the `BASE_URL` as appropriate:
 
 ```
-BASE_URL = "http://api.nuvoice.ai:8000"
+BASE_URL = "http://translation-api.nuvoice.ai:8000"
 ```
 
 You can find the domain part of the URL from `VPC -> Endpoints` in AWS dashboard. Select the endpoint you created in the Setup section.

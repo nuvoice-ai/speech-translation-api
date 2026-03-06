@@ -9,7 +9,7 @@ Then copy over the code in this folder together to the EC2 Instance.
 Download test file:
 
 ```
-wget https://nuvoice-ai-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
+wget https://nuvoice-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
 ```
 
 Install latest Node.js using [nvm](https://github.com/nvm-sh/nvm).

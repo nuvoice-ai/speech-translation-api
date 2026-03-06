@@ -29,10 +29,10 @@ Add inbound and outbound rules to the security group using the CLI or the UI.
 Step 3: Create subnet(s) from where you will access the service (change `us-east-1a` to any other availability zone as appropriate):
 
 ```
-aws ec2 create-subnet --availability-zone "us-east-1a" --cidr-block "10.0.0.0/27" --vpc-id <INSERT-FROM-ABOVE> --region us-east-1
+aws ec2 create-subnet --availability-zone "us-east-1a" --cidr-block "10.3.0.0/27" --vpc-id <INSERT-FROM-ABOVE> --region us-east-1
 ```
 
-In next section we cover how to create the interface endpoint.
+In the next section we cover how to create the interface endpoint.
 
 ### Using the UI
 
@@ -168,7 +168,11 @@ To configure an existing interface endpoint refer [this](https://docs.aws.amazon
 
 To test the API provision an EC2 Instance in the **same** VPC and subnet that you used in the Setup and use the **same** SG.
 
-Log in to the ec2 instance and clone this repository.
+Log in to the ec2 instance and clone this repository. Download test file:
+
+```
+wget https://nuvoice-public.s3.us-west-2.amazonaws.com/LJ_eng.wav
+```
 
 To test the API using JavaScript refer the sample in [javascript](javascript/README.md) folder.
 

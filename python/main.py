@@ -2,7 +2,7 @@ import socketio
 import soundfile as sf
 import numpy as np
 
-BASE_URL = "http://api.nuvoice.ai:8000"
+BASE_URL = "http://translation-api.nuvoice.ai:8000"
 FILE = "LJ_eng.wav"
 OUTPUT = "test.wav"
 target_language = "hin"

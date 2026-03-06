@@ -9,6 +9,14 @@ Requirements:
 
 - [Socket.IO](https://socket.io/)
 
+Audio Data Format:
+
+- `float32` samples between `[-1, +1]`
+
+Sample Rate:
+
+- 16 kHz
+
 ## Streaming vs. Non-streaming
 
 The API supports two modes:
@@ -28,13 +36,14 @@ Below are Pros and Cons of the two approaches:
 | VAD processing happens on the server | VAD processing happens on the client |
 | No client-side VAD dependency | Requires using a library to perform VAD on the client |
 | VAD processing introduces some overhead (minimal) on the server | VAD processing introduces some overhead (minimal) on the client |
-| You do not get to customize the VAD algorithm we use on the server | Advanced users can fine-tune the VAD algorithm if the library supports that |
+| You do not get to customize the VAD algorithm we use on the server | You can choose the VAD algorithm and even fine-tune it if you wish so |
 | Good when preserving battery is important | Client-side VAD means increased battery consumption on mobile-devices |
 | Continuous audio transmission (even silence blocks) | Only transmit segments containing speech |
-| | You can correlate input -> output. Think of the API as applying a function to a finite (bounded) input. |
+| | You can correlate input -> output (request -> response). Think of the API as applying a function to a finite (bounded) input. |
+| Easier to implement as no integration with a third-party library is required | Think of this as bring your own VAD |
 
-If you are unsure which one to use, we recommend you use client-side VAD a.k.a. non-streaming mode and switch to streaming mode if you are facing
-difficulty integrating with a VAD library on the client or are running on very low energy device.
+If you are unsure which one to use, we recommend non-streaming mode (client-side VAD) and switching to streaming mode if you are having difficulty integrating a VAD library on your platform
+or running on very low-power devices where minimizing power consumption is very important.
 
 The API for the two-modes is different and thus described in separate docs.
 
@@ -56,7 +65,7 @@ pip install python-socketio
 
 Tips:
 
-- In case of JavaScript you would install version `4.x` of the package (`4.8.1` as of this writing) and in case of Python you would install version `5.x` of the package (`5.12.1` as of this writing). Although they have different version numbers both clients (JS and Python) are using same version of Socket.IO and Engine.IO protocols. If you are unfamiliar with Socket.IO, it wouldn't hurt to spend 15 to 30 minutes getting basic familiarity with it.
+- In case of JavaScript you would install the latest `4.x` release of the package and in case of Python you would install the latest `5.x` release. Although they have different version numbers both clients (JS and Python) are using same version of Socket.IO and Engine.IO protocols. If you are unfamiliar with Socket.IO, it is worth spending 15–30 minutes getting basic familiarity with it.
 - Do not try to make a direct websocket connection to the API. It will not work. You need `socket.io` (client).
 
 If you are using another programming language download the client by following the instructions given at [this](https://socket.io/docs/v4/) page.

@@ -32,9 +32,9 @@ socket.on("stream_stopped", () => {
     socket.disconnect();
 });
 
-while (audioStream.hasNext()) {
-    const audio = await audioStream.next();
-	socket.emit("audio_chunk", audio);
+while (await audioStream.hasNext()) {
+    const audio = audioStream.next();
+    socket.emit("audio_chunk", audio);
 };
 
 socket.emit("stop_stream");
@@ -43,7 +43,7 @@ socket.emit("stop_stream");
 Here are the differences between this code and the code for the non-streaming API:
 
 - **no `translate` event**: Streaming API has no `translate` event.
-- `audio_chunk` event is used to send short audio clips `~1s` to the server _continuously_. Please use a sampling rate of **16 kHz** to avoid any surprises.
+- `audio_chunk` event is used to send short audio clips `~1s` to the server _continuously_. Audio must be a **`Float32Array`** with sample values in the range **[-1, +1]**. Please use a sampling rate of **16 kHz** to avoid any surprises.
 - Before calling `audio_chunk` you must start the stream by sending `start_stream` event. The server will respond by sending a `stream_started` event.
 - When the call is terminated (user hangs up) call `stop_stream` to end the session on the server. The server will respond by sending a `stream_stopped` event.
 
@@ -54,7 +54,7 @@ Here are the differences between this code and the code for the non-streaming AP
 
 The `speech` and `text` events have the same shape as the non-streaming API except for the `state` parameter which is not present in the streaming API.
 
-On the browser you can use below code to capture the audio from the computer's microphone:
+On the browser you can use below code to capture the audio from the computer's microphone (this code effectively replaces the `while` loop earlier):
 
 ```javascript
 audioStream = await navigator.mediaDevices.getUserMedia({
@@ -68,27 +68,21 @@ audioStream = await navigator.mediaDevices.getUserMedia({
 audioContext = new AudioContext({ sampleRate: 16000 });
 sourceNode = audioContext.createMediaStreamSource(audioStream);
 
+// Note: createScriptProcessor is deprecated. It is used here for broad compatibility,
+// but for new projects consider using AudioWorkletProcessor instead.
+// See: https://developer.mozilla.org/en-US/docs/Web/API/AudioWorkletProcessor
 if (audioContext.createScriptProcessor) {
     processor = audioContext.createScriptProcessor(16384, 1, 1); // ~1s chunk
-    processor.onaudioprocess = (e) => {        
-        const data = e.inputBuffer.getChannelData(0); // Float32Array
-        audioCaptureCallback(data);
+    processor.onaudioprocess = (e) => {
+        if (!stream_started) { return }               // do not start streaming until you have received acknowledgement from server of the start_stream event
+        const data = e.inputBuffer.getChannelData(0); // Float32Array, values in [-1, +1]
+        socket.emit("audio_chunk", data);
     };
     sourceNode.connect(processor);
     processor.connect(audioContext.destination);
 }
 ```
 
-Wrapping this into a Java style iterator is left as an exercise for the reader or you could just replace:
+The `onaudioprocess` callback fires with a `Float32Array` containing sample values in **[-1, +1]**, which is exactly the format the API expects. The example above emits each chunk directly via `socket.emit("audio_chunk", data)`.
 
-```javascript
-audioCaptureCallback(data);
-```
-
-in above with:
-
-```javascript
-socket.emit("audio_chunk", data);
-```
-
-for same result. See [streaming.js](javascript/streaming.js) for a complete example.
+See [streaming.js](javascript/streaming.js) for a complete example.
