@@ -8,5 +8,6 @@ It is divided into following sections:
 - [Streaming API](streaming.md)
 - [Non-streaming API](non_streaming.md)
 - [Reference (REST API)](reference.md)
+- [Demo App](demo-app/README.md)
 
-Questions? Please use the issue tracker for any questions or reach out to us.
+Questions? Please use the issue tracker for any questions or reach out to us on [LinkedIn](https://www.linkedin.com/company/nuvoice-ai/).
