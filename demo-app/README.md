@@ -16,20 +16,22 @@ This folder contains an application that can be used to test the Real-time Speec
 unzip speech-translation-demo-app.zip
 ```
 
-`cd` to the `build` subdirectory. You should see following directory structure:
+You should see following directory structure:
 
 ```
+$ tree -L 1 build
 build
 ├── client
 ├── env.js
 ├── handler.js
 ├── index.js
-├── node_modules
-├── package-lock.json
-├── package.json
 ├── server
 └── shims.js
+
+3 directories, 4 files
 ```
+
+`cd` to the `build` subdirectory.
 
 2. Create a `.env` file inside the `build` directory and set the URL where the translation API is running. E.g.,:
 
@@ -40,7 +42,7 @@ echo "SPEECH_TRANSLATION_API_URL=http://translation-api.nuvoice.ai:8000" > .env
 3. Install runtime dependencies (from `build` directory):
 
 ```
-npm i
+npm i dotenv
 ```
 
 4. Run (from `build` directory):
@@ -53,7 +55,7 @@ node index.js
 
 You should see a UI similar to [this](https://www.youtube.com/watch?v=PUtKjp2NtR4). Follow the instructions to speak something and see it translated into another language in real-time.
 
-## Comparing client to server-side VAD (Non-streaming vs. streaming API)
+## Comparing client to server-side VAD (non-streaming vs. streaming API)
 
 You can also use the application to compare client vs. server-side VAD.
 
